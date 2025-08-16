@@ -19,7 +19,6 @@ import java.time.Instant;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
-import java.util.UUID;
 
 @Component
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -29,9 +28,8 @@ public class JwtHelper {
 
 
     public Token createToken(User user) {
-        String jwtId = UUID.randomUUID().toString();
-        String accessToken = generateToken(user, false, jwtId);
-        String refreshToken = generateToken(user, true, jwtId);
+        String accessToken = generateToken(user, false);
+        String refreshToken = generateToken(user, true);
 
         return new Token(accessToken, refreshToken);
     }
@@ -63,6 +61,7 @@ public class JwtHelper {
         return List.of();
     }
 
+
     private Object getClaimFromToken(String token, String claimName) {
         try {
             JWSObject jwsObject = JWSObject.parse(token);
@@ -81,11 +80,7 @@ public class JwtHelper {
         }
     }
 
-    private String getRoleStringFromUser(User user) {
-        return StringUtils.collectionToDelimitedString(user.getRoles(), " ");
-    }
-
-    private String generateToken(User user, boolean isRefreshToken , String jwtId) {
+    public String generateToken(User user, boolean isRefreshToken) {
         JWSHeader jwsHeader = new JWSHeader(JWSAlgorithm.HS256);
         long expTime = jwtProperties.getExpiration() * (isRefreshToken ? 10 : 1);
 
@@ -93,10 +88,9 @@ public class JwtHelper {
                 .issuer("VDT")
                 .issueTime(
                         new Date())
-                .jwtID(jwtId)
                 .claim("type", isRefreshToken ? "refresh" : "access")
-                .expirationTime(new Date(Instant.now().toEpochMilli() + expTime) )
-                .claim("roles", getRoleStringFromUser(user))
+                .expirationTime(new Date(Instant.now().toEpochMilli() + expTime))
+                .claim("roles", isRefreshToken ? null : getRoleStringFromUser(user))
                 .build();
 
         JWSObject jwsObject = new JWSObject(jwsHeader, jwtClaimSet.toPayload());
@@ -110,5 +104,10 @@ public class JwtHelper {
         }
         return jwsObject.serialize();
     }
+
+    private String getRoleStringFromUser(User user) {
+        return StringUtils.collectionToDelimitedString(user.getRoles(), " ");
+    }
+
 
 }

@@ -25,7 +25,7 @@ public class ApplicationInitConfig {
             if (userRepository.count() == 0) {
                 User user = new User();
                 user.setEmail("admin@gmail.com");
-                user.setPassword(passwordEncoder.encode("admin"));
+                user.setPassword(passwordEncoder.encode("admin@123"));
                 user.setRoles(Set.of(Role.ADMIN, Role.USER));
 
                 userRepository.save(user);

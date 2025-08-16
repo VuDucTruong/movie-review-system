@@ -1,5 +1,6 @@
 package com.vdt.authservice.mapper;
 
+import com.vdt.authservice.dto.Token;
 import com.vdt.authservice.dto.request.RegisterRequest;
 import com.vdt.authservice.dto.response.UserResponse;
 import com.vdt.authservice.entity.User;
@@ -8,8 +9,8 @@ import org.mapstruct.Mapping;
 
 @Mapper(componentModel = "spring")
 public interface UserMapper {
-    @Mapping(target = "token", ignore = true)
-    UserResponse toUserResponse(User user);
+
+    UserResponse toUserResponse(User user, Token token);
 
 
     @Mapping(target = "modifiedAt", ignore = true)

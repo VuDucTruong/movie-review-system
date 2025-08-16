@@ -16,10 +16,12 @@ import com.vdt.authservice.service.AuthService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -39,7 +41,9 @@ public class AuthServiceImpl implements AuthService {
                         user.getPassword()))
                 .orElseThrow(() -> new AppException(ErrorCode.LOGIN_FAIL));
 
-        return userMapper.toUserResponse(authenticatedUser);
+        var token = jwtHelper.createToken(authenticatedUser);
+
+        return userMapper.toUserResponse(authenticatedUser, token);
     }
 
     @Override
@@ -48,29 +52,32 @@ public class AuthServiceImpl implements AuthService {
         var user = userMapper.fromRegisterRequest(registerRequest);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
 
-        return userMapper.toUserResponse(userRepository.save(user));
+        return userMapper.toUserResponse(userRepository.save(user), null);
     }
 
     @Override
     public void logout() {
-        String accessToken = SecurityContextHolder.getContext()
-                .getAuthentication()
-                .getCredentials()
-                .toString();
+
+        String accessToken = SecurityContextHolder.getContext().getAuthentication().getCredentials().toString();
 
         if (accessToken != null) {
             invalidTokenRepository.saveInvalidToken(accessToken,
                     jwtHelper.getRemainingExpTime(accessToken));
+        } else {
+            throw new AppException(ErrorCode.LOGOUT_FAIL);
         }
     }
 
     @Override
-    public Token refreshToken(String refreshToken) {
+    public Token refreshAccessToken(String refreshToken) {
         Long userId = Long.parseLong(jwtHelper.getSubject(refreshToken));
-        var user = userRepository.findById(userId)
+
+        User user = userRepository.findById(userId)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
-        logout(); // Make sure previous token can't be used for bad purpose
-        return jwtHelper.createToken(user);
+
+        String newAccessToken = jwtHelper.generateToken(user, false);
+
+        return new Token(newAccessToken, refreshToken);
     }
 
     @Override

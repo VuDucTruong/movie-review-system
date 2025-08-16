@@ -17,6 +17,9 @@ public enum ErrorCode {
     INVALID_EMAIL(4001, "Invalid email", HttpStatus.BAD_REQUEST),
     INVALID_PASSWORD(4002, "Password must to be 6 - 40 , alphanumeric", HttpStatus.BAD_REQUEST),
     LOGIN_FAIL(4003, "Invalid email or password", HttpStatus.BAD_REQUEST),
+    INVALID_TOKEN(4004, "Invalid token", HttpStatus.BAD_REQUEST),
+    EXPIRED_REFRESH_TOKEN(4005, "Refresh token was expired", HttpStatus.BAD_REQUEST),
+    LOGOUT_FAIL(4006, "Logout fail as no access token exists", HttpStatus.BAD_REQUEST),
     // 401
     UNAUTHENTICATED(4011, "Unauthenticated", HttpStatus.UNAUTHORIZED),
 

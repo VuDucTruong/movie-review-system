@@ -30,6 +30,12 @@ public class SecurityConfig {
     String[] WHITELIST = {
             "/auth/login",
             "/auth/register",
+            "/auth/refresh",
+            "/swagger-ui/**",
+            "/configuration/**",
+            "/v3/api-docs/**",
+            "/swagger-resources/**",
+            "/actuator/**"
     };
 
 
@@ -37,8 +43,7 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http.cors(AbstractHttpConfigurer::disable)
                 .csrf(AbstractHttpConfigurer::disable)
-                .authorizeHttpRequests(auth -> auth.requestMatchers(WHITELIST)
-                        .permitAll()
+                .authorizeHttpRequests(auth -> auth.requestMatchers(WHITELIST).permitAll()
                         .anyRequest()
                         .authenticated())
                 .addFilterBefore(authFilter, UsernamePasswordAuthenticationFilter.class)

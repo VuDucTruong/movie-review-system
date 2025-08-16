@@ -22,6 +22,12 @@ public class User extends BaseEntity {
     String email;
     String password;
 
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(
+            name = "user_roles",
+            joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id")
+    )
+    @Enumerated(EnumType.STRING)
     Set<Role> roles = new HashSet<>();
 
     Boolean isActive = true;

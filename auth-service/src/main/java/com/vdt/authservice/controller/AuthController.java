@@ -11,17 +11,26 @@ import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+@Slf4j
 @RestController
-@RequestMapping("/auth")
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
+@RequestMapping("/auth")
 @RequiredArgsConstructor
 public class AuthController {
     AuthService authService;
+
+    @PostMapping("/logout")
+    ApiResponse<Void> logout() {
+        authService.logout();
+        return ApiResponse.<Void>builder().message("Logout successfully").build();
+    }
+
 
     @PostMapping("/login")
     ApiResponse<UserResponse> login(@RequestBody @Valid LoginRequest loginRequest) {
@@ -35,16 +44,13 @@ public class AuthController {
                 .build();
     }
 
-    @PostMapping("/token/refresh")
+    @PostMapping("/refresh")
     ApiResponse<Token> refreshToken(@RequestBody String refreshToken) {
-        return ApiResponse.<Token>builder().data(authService.refreshToken(refreshToken)).build();
+        return ApiResponse.<Token>builder()
+                .data(authService.refreshAccessToken(refreshToken))
+                .build();
     }
 
-    @PostMapping("/logout")
-    ApiResponse<Void> logout() {
-        authService.logout();
-        return ApiResponse.<Void>builder().message("Logout successfully").build();
-    }
 
     // TODO: Change password --> Need Notification service
 
