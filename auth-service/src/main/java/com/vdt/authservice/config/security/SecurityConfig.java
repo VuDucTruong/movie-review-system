@@ -1,6 +1,8 @@
 package com.vdt.authservice.config.security;
 
 
+import java.nio.charset.StandardCharsets;
+import javax.crypto.spec.SecretKeySpec;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -13,8 +15,12 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.security.oauth2.jwt.JwtValidators;
+import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
+import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
@@ -23,38 +29,56 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    AuthFilter authFilter;
+  CustomJwtDecoder customJwtDecoder;
+
+  @NonFinal
+  String[] WHITELIST = {
+      "/auth/login",
+      "/auth/register",
+      "/auth/refresh",
+      "/swagger-ui/**",
+      "/configuration/**",
+      "/v3/api-docs/**",
+      "/swagger-resources/**",
+      "/actuator/**"
+  };
 
 
-    @NonFinal
-    String[] WHITELIST = {
-            "/auth/login",
-            "/auth/register",
-            "/auth/refresh",
-            "/swagger-ui/**",
-            "/configuration/**",
-            "/v3/api-docs/**",
-            "/swagger-resources/**",
-            "/actuator/**"
-    };
+  @Bean
+  public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    http.cors(AbstractHttpConfigurer::disable)
+        .csrf(AbstractHttpConfigurer::disable);
+    http.authorizeHttpRequests(auth -> auth
+        .requestMatchers(WHITELIST)
+        .permitAll()
+        .anyRequest()
+        .authenticated());
 
+    http.oauth2ResourceServer(
+        oauth2 ->
+            oauth2.jwt(jwtConfigurer ->
+                jwtConfigurer.decoder(customJwtDecoder)
+                    .jwtAuthenticationConverter(jwtAuthenticationConverter())));
 
-    @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        return http.cors(AbstractHttpConfigurer::disable)
-                .csrf(AbstractHttpConfigurer::disable)
-                .authorizeHttpRequests(auth -> auth.requestMatchers(WHITELIST).permitAll()
-                        .anyRequest()
-                        .authenticated())
-                .addFilterBefore(authFilter, UsernamePasswordAuthenticationFilter.class)
-                .exceptionHandling(exception -> exception.authenticationEntryPoint(
-                        new JwtAuthenticationEntrypoint()))
-                .build();
-    }
+    http.exceptionHandling(
+        exception -> exception.authenticationEntryPoint(new JwtAuthenticationEntrypoint()));
 
+    return http.build();
+  }
 
-    @Bean
-    PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
+  JwtAuthenticationConverter jwtAuthenticationConverter() {
+    JwtGrantedAuthoritiesConverter jwtGrantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter();
+    jwtGrantedAuthoritiesConverter.setAuthorityPrefix("");
+    jwtGrantedAuthoritiesConverter.setAuthoritiesClaimName("roles");
+
+    JwtAuthenticationConverter jwtAuthenticationConverter = new JwtAuthenticationConverter();
+    jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(
+        jwtGrantedAuthoritiesConverter);
+    return jwtAuthenticationConverter;
+  }
+
+  @Bean
+  PasswordEncoder passwordEncoder() {
+    return new BCryptPasswordEncoder();
+  }
 }

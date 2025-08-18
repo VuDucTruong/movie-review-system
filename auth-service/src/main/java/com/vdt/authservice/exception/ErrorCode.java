@@ -20,6 +20,7 @@ public enum ErrorCode {
     INVALID_TOKEN(4004, "Invalid token", HttpStatus.BAD_REQUEST),
     EXPIRED_REFRESH_TOKEN(4005, "Refresh token was expired", HttpStatus.BAD_REQUEST),
     LOGOUT_FAIL(4006, "Logout fail as no access token exists", HttpStatus.BAD_REQUEST),
+    INVALID_JWT_TOKEN(4007, "Invalid JWT token", HttpStatus.BAD_REQUEST),
     // 401
     UNAUTHENTICATED(4011, "Unauthenticated", HttpStatus.UNAUTHORIZED),
 

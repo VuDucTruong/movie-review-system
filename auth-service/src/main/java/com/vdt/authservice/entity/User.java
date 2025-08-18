@@ -10,6 +10,7 @@ import lombok.Setter;
 
 import java.util.HashSet;
 import java.util.Set;
+import org.springframework.util.StringUtils;
 
 @Entity
 @Getter
@@ -31,6 +32,14 @@ public class User extends BaseEntity {
     Set<Role> roles = new HashSet<>();
 
     Boolean isActive = true;
+
+
+    public String getRoleString() {
+        if (roles == null || roles.isEmpty()) {
+            return "";
+        }
+        return StringUtils.collectionToDelimitedString(roles, " ");
+    }
 
 
 }

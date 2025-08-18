@@ -24,3 +24,5 @@ springdoc:
     urls:
       - name: Auth Service
         url: /auth-service/v3/api-docs
+      - name: Profile Service
+        url: /profile-service/v3/api-docs

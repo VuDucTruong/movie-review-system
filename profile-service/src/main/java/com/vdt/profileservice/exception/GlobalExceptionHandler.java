@@ -1,13 +1,11 @@
-package com.vdt.authservice.exception;
+package com.vdt.profileservice.exception;
 
 
-import com.vdt.authservice.dto.ApiResponse;
+import com.vdt.profileservice.dto.ApiResponse;
 import jakarta.validation.ConstraintViolation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationServiceException;
-import org.springframework.security.oauth2.jwt.JwtException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -68,16 +66,4 @@ public class GlobalExceptionHandler {
         return ResponseEntity.badRequest().body(apiResponse);
     }
 
-
-    @ExceptionHandler(AuthenticationServiceException.class)
-    ResponseEntity<ApiResponse<Object>> handleJwtException(JwtException ex) {
-        log.error("JWT Exception: {}", ex.getMessage(), ex);
-        ErrorCode errorCode = ErrorCode.INVALID_JWT_TOKEN;
-        errorCode.addDetail(ex.getMessage());
-        ApiResponse<Object> apiResponse = ApiResponse.builder()
-            .code(errorCode.getCode())
-            .message(errorCode.getMessage())
-            .build();
-        return new ResponseEntity<>(apiResponse, errorCode.getHttpStatusCode());
-    }
 }
