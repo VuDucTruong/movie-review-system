@@ -8,7 +8,6 @@ import java.util.Arrays;
 import java.util.List;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
-import lombok.SneakyThrows;
 import lombok.experimental.FieldDefaults;
 import lombok.experimental.NonFinal;
 import lombok.extern.slf4j.Slf4j;
@@ -27,8 +26,8 @@ import reactor.core.publisher.Mono;
 
 @Slf4j
 @Component
-@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @RequiredArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class AuthenticationFilter implements GlobalFilter, Ordered {
 
   AuthService authService;
@@ -44,7 +43,6 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
     "/auth/refresh",
   };
 
-  @SneakyThrows
   @Override
   public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
     log.info("Request path: {}", exchange.getRequest().getPath());
@@ -81,13 +79,17 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
   }
 
 
-  Mono<Void> unauthenticated(ServerHttpResponse response) throws JsonProcessingException {
+  Mono<Void> unauthenticated(ServerHttpResponse response) {
     ApiResponse<Void> apiResponse = ApiResponse.<Void>builder()
         .code(4011)
         .message("Unauthenticated in API Gateway")
         .build();
-
-    String body = objectMapper.writeValueAsString(apiResponse);
+    String body = "";
+    try {
+      body = objectMapper.writeValueAsString(apiResponse);
+    } catch (JsonProcessingException e) {
+      log.error("Error serializing response body: {}", e.getMessage());
+    }
 
     response.setStatusCode(HttpStatus.UNAUTHORIZED);
     response.getHeaders().add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
