@@ -73,7 +73,6 @@ public class GlobalExceptionHandler {
     ResponseEntity<ApiResponse<Object>> handleJwtException(JwtException ex) {
         log.error("JWT Exception: {}", ex.getMessage(), ex);
         ErrorCode errorCode = ErrorCode.INVALID_JWT_TOKEN;
-        errorCode.addDetail(ex.getMessage());
         ApiResponse<Object> apiResponse = ApiResponse.builder()
             .code(errorCode.getCode())
             .message(errorCode.getMessage())

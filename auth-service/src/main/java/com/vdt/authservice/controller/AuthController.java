@@ -12,6 +12,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -20,12 +21,11 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 @RestController
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-@RequestMapping("/auth")
 @RequiredArgsConstructor
 public class AuthController {
     AuthService authService;
 
-    @PostMapping("/logout")
+    @PostMapping("/me/logout")
     ApiResponse<Void> logout() {
         authService.logout();
         return ApiResponse.<Void>builder().message("Logout successfully").build();
@@ -51,6 +51,11 @@ public class AuthController {
                 .build();
     }
 
+
+    @PostMapping("/introspect")
+    ResponseEntity<Boolean> introspect(@RequestBody String accessToken) {
+        return ResponseEntity.ok(authService.introspectAccessToken(accessToken));
+    }
 
     // TODO: Change password --> Need Notification service
 

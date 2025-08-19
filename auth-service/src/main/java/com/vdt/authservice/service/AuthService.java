@@ -12,4 +12,5 @@ public interface AuthService {
     void logout();
     Token refreshAccessToken(String refreshToken);
     void changePassword(ChangePasswordRequest changePasswordRequest);
+    boolean introspectAccessToken(String accessToken);
 }

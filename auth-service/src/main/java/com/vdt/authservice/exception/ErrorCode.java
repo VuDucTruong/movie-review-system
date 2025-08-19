@@ -36,11 +36,7 @@ public enum ErrorCode {
     ;
 
     final int code;
-    String message;
+    final String message;
     final HttpStatusCode httpStatusCode;
-
-    public void addDetail(String additionalMessage) {
-        this.message += " : " + additionalMessage;
-    }
 
 }

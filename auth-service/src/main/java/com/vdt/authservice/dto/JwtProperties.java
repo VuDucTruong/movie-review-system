@@ -1,4 +1,4 @@
-package com.vdt.authservice.config.security;
+package com.vdt.authservice.dto;
 
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;

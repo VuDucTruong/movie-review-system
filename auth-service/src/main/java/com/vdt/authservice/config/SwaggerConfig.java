@@ -14,7 +14,7 @@ import java.util.List;
 public class SwaggerConfig {
     @Bean
     public OpenAPI customOpenAPI() {
-        return new OpenAPI().servers(List.of(new Server().url("/auth-service"),
+        return new OpenAPI().servers(List.of(new Server().url("/auth"),
                         new Server().url("http://localhost:8081")))
                 .info(new io.swagger.v3.oas.models.info.Info()
                         .title("Auth Service API")

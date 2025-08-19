@@ -3,10 +3,12 @@ package com.vdt.authservice.service.impl;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.JWSHeader;
+import com.nimbusds.jose.JWSVerifier;
 import com.nimbusds.jose.crypto.MACSigner;
+import com.nimbusds.jose.crypto.MACVerifier;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
-import com.vdt.authservice.config.security.JwtProperties;
+import com.vdt.authservice.dto.JwtProperties;
 import com.vdt.authservice.dto.Token;
 import com.vdt.authservice.dto.request.ChangePasswordRequest;
 import com.vdt.authservice.dto.request.LoginRequest;
@@ -29,6 +31,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.jwt.JwtException;
 import org.springframework.stereotype.Service;
 
 @Slf4j
@@ -102,6 +105,31 @@ public class AuthServiceImpl implements AuthService {
     user.setPassword(passwordEncoder.encode(changePasswordRequest.newPassword()));
     userRepository.save(user);
     logout();
+  }
+
+  @Override
+  public boolean introspectAccessToken(String accessToken) {
+
+    if(invalidTokenRepository.isInvalidToken(accessToken)) {
+      log.warn("Invalid access token: {}", accessToken);
+      return false;
+    }
+    try {
+      SignedJWT signedJWT = SignedJWT.parse(accessToken);
+      // Validate the JWT signature
+      JWSVerifier verifier = new MACVerifier(jwtProperties.getSecret());
+      if (!signedJWT.verify(verifier)) {
+        throw new JwtException("Invalid JWT signature");
+      }
+      // Validate the JWT claims
+      Date exp = signedJWT.getJWTClaimsSet().getExpirationTime();
+      if (exp != null && exp.before(new Date())) {
+        throw new JwtException("JWT token is expired");
+      }
+      return true;
+    } catch (Exception e) {
+      return false;
+    }
   }
 
 
