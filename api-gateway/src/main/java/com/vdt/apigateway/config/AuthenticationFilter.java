@@ -41,6 +41,7 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
     "/auth/login",
     "/auth/register",
     "/auth/refresh",
+      ".*/v3/api-docs",
   };
 
   @Override
