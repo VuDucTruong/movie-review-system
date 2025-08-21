@@ -42,6 +42,7 @@ public class GlobalExceptionHandler {
         String errorCodeKey = Objects.requireNonNull(ex.getFieldError()).getDefaultMessage();
         ErrorCode errorCode;
         Map<String , Object> attributes = null;
+        log.error("Validation error: {}", errorCodeKey, ex);
         try {
             errorCode = ErrorCode.valueOf(errorCodeKey);
 
@@ -52,9 +53,11 @@ public class GlobalExceptionHandler {
                     .getConstraintDescriptor()
                     .getAttributes();
 
+
             log.error(attributes.toString());
 
         } catch (IllegalArgumentException e) {
+            log.error(e.getMessage());
             errorCode = ErrorCode.INVALID_ENUM_KEY;
         }
 

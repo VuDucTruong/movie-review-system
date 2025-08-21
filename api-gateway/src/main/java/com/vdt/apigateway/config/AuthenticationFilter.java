@@ -41,6 +41,7 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
     "/auth/login",
     "/auth/register",
     "/auth/refresh",
+      "/auth/introspect",
       ".*/v3/api-docs",
   };
 
@@ -61,16 +62,18 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
     String token = authHeaders.getFirst().replace("Bearer ", "");
     log.info("token: {}", token);
 
-    try {
-      if (Boolean.FALSE.equals(authService.introspectAccessToken(token))) {
-        return unauthenticated(exchange.getResponse());
-      }
-    } catch (Exception e) {
-      log.error("Error during token introspection: {}", e.getMessage());
-      return unauthenticated(exchange.getResponse());
-    }
-
-    return chain.filter(exchange);
+    return authService.introspectAccessToken(token)
+        .flatMap(isValid -> {
+          if (Boolean.FALSE.equals(isValid.getBody())) {
+            return unauthenticated(exchange.getResponse());
+          }
+          log.info("Token is valid, proceeding with request");
+          return chain.filter(exchange);
+        })
+        .onErrorResume(e -> {
+          log.error("Error during token introspection: {}", e.getMessage());
+          return unauthenticated(exchange.getResponse());
+        });
   }
 
 

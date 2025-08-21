@@ -14,7 +14,7 @@ import java.util.List;
 public class SwaggerConfig {
     @Bean
     public OpenAPI customOpenAPI() {
-        return new OpenAPI().servers(List.of(new Server().url("/profile-service"),
+        return new OpenAPI().servers(List.of(new Server().url("/profiles"),
                         new Server().url("http://localhost:8082")))
                 .info(new io.swagger.v3.oas.models.info.Info()
                         .title("Profile Service API")

@@ -38,10 +38,6 @@ public class Profile {
     String bio;
     String avatarUrl;
 
-    @JdbcTypeCode(SqlTypes.JSON)
-    @Column(columnDefinition = "jsonb")
-    Map<String, Object> preferences;
-
     @OneToMany(mappedBy = "profile", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     Set<WatchList> watchLists;
 }

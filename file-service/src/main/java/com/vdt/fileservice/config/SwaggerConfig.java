@@ -14,7 +14,7 @@ import java.util.List;
 public class SwaggerConfig {
     @Bean
     public OpenAPI customOpenAPI() {
-        return new OpenAPI().servers(List.of(new Server().url("/file-service"),
+        return new OpenAPI().servers(List.of(new Server().url("/files"),
                         new Server().url("http://localhost:8888")))
                 .info(new io.swagger.v3.oas.models.info.Info()
                         .title("File Service API")

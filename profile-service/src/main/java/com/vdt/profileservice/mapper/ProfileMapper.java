@@ -4,6 +4,7 @@ import com.vdt.profileservice.dto.CreateProfileRequest;
 import com.vdt.profileservice.dto.ProfileResponse;
 import com.vdt.profileservice.dto.UpdateProfileRequest;
 import com.vdt.profileservice.entity.Profile;
+import org.mapstruct.BeanMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
@@ -21,7 +22,7 @@ public interface ProfileMapper {
     @Mapping(target = "modifiedAt", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "avatarUrl", ignore = true)
-    //@BeanMapping(nullValuePropertyMappingStrategy = org.mapstruct.NullValuePropertyMappingStrategy.IGNORE)
+    @BeanMapping(nullValuePropertyMappingStrategy = org.mapstruct.NullValuePropertyMappingStrategy.IGNORE)
     void updateProfileFromRequest(UpdateProfileRequest request, @MappingTarget Profile profile);
 
 

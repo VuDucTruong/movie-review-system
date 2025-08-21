@@ -24,6 +24,14 @@ spring:
               uri: lb://profile-service
               predicates:
                 - Path=/profiles/**
+              filters:
+                - RewritePath=/profiles/(?<segment>.*), /${segment}
+            - id: file-service
+              uri: lb://file-service
+              predicates:
+                - Path=/files/**
+              filters:
+                - RewritePath=/files/(?<segment>.*), /${segment}
 
 server:
   port: 8080
@@ -49,3 +57,5 @@ springdoc:
         url: /auth/v3/api-docs
       - name: Profile Service
         url: /profiles/v3/api-docs
+      - name: File Service
+        url: /files/v3/api-docs

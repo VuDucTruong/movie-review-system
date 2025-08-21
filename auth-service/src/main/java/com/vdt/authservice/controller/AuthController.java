@@ -15,7 +15,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @Slf4j
@@ -23,41 +22,42 @@ import org.springframework.web.bind.annotation.RestController;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @RequiredArgsConstructor
 public class AuthController {
-    AuthService authService;
 
-    @PostMapping("/me/logout")
-    ApiResponse<Void> logout() {
-        authService.logout();
-        return ApiResponse.<Void>builder().message("Logout successfully").build();
-    }
+  AuthService authService;
 
-
-    @PostMapping("/login")
-    ApiResponse<UserResponse> login(@RequestBody @Valid LoginRequest loginRequest) {
-        return ApiResponse.<UserResponse>builder().data(authService.login(loginRequest)).build();
-    }
-
-    @PostMapping("/register")
-    ApiResponse<UserResponse> register(@RequestBody @Valid RegisterRequest registerRequest) {
-        return ApiResponse.<UserResponse>builder()
-                .data(authService.register(registerRequest))
-                .build();
-    }
-
-    @PostMapping("/refresh")
-    ApiResponse<Token> refreshToken(@RequestBody String refreshToken) {
-        return ApiResponse.<Token>builder()
-                .data(authService.refreshAccessToken(refreshToken))
-                .build();
-    }
+  @PostMapping("/me/logout")
+  ApiResponse<Void> logout() {
+    authService.logout();
+    return ApiResponse.<Void>builder().message("Logout successfully").build();
+  }
 
 
-    @PostMapping("/introspect")
-    ResponseEntity<Boolean> introspect(@RequestBody String accessToken) {
-        return ResponseEntity.ok(authService.introspectAccessToken(accessToken));
-    }
+  @PostMapping("/login")
+  ApiResponse<UserResponse> login(@RequestBody @Valid LoginRequest loginRequest) {
+    return ApiResponse.<UserResponse>builder().data(authService.login(loginRequest)).build();
+  }
 
-    // TODO: Change password --> Need Notification service
+  @PostMapping(value = "/register")
+  ApiResponse<UserResponse> register(@RequestBody @Valid RegisterRequest registerRequest) {
+    return ApiResponse.<UserResponse>builder()
+        .data(authService.register(registerRequest))
+        .build();
+  }
+
+  @PostMapping("/refresh")
+  ApiResponse<Token> refreshToken(@RequestBody String refreshToken) {
+    return ApiResponse.<Token>builder()
+        .data(authService.refreshAccessToken(refreshToken))
+        .build();
+  }
+
+
+  @PostMapping("/introspect")
+  ResponseEntity<Boolean> introspect(@RequestBody String accessToken) {
+    return ResponseEntity.ok(authService.introspectAccessToken(accessToken));
+  }
+
+  // TODO: Change password --> Need Notification service
 
 //    @PostMapping("/change-password/otp")
 //    ApiResponse<Void> sendOtp(@RequestBody @Valid SendOtpRequest sendOtpRequest) {

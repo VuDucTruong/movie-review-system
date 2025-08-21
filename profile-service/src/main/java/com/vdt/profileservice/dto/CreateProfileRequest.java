@@ -5,8 +5,6 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.Map;
-
 public record CreateProfileRequest(
         @NotNull(message = "USER_ID_CANNOT_BE_NULL")
         Long userId,
@@ -15,7 +13,6 @@ public record CreateProfileRequest(
         String displayName,
         @Size(max = 200, message = "INVALID_BIO")
         String bio,
-        MultipartFile avatarImage,
-        Map<String , Object> preferences
+        MultipartFile avatar
 ) {
 }

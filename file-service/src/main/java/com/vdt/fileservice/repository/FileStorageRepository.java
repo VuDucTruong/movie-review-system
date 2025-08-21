@@ -14,10 +14,6 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.URI;
-import java.net.URL;
-import java.net.URLConnection;
 import java.util.UUID;
 
 @Repository
@@ -33,9 +29,8 @@ public class FileStorageRepository {
 
     public FileInfo storeFile(MultipartFile file) throws IOException {
         String fileExtension = StringUtils.getFilenameExtension(file.getOriginalFilename());
-        String fileName = UUID.randomUUID().toString() + "." + fileExtension;
-        var result = cloudinary.uploader().upload(file.getBytes(), ObjectUtils.asMap("public_id", fileName));
-
+        var result = cloudinary.uploader().upload(file.getBytes(), ObjectUtils.asMap("public_id", UUID.randomUUID().toString()));
+        String fileName = result.get("public_id") + "." + fileExtension;
         return FileInfo.builder()
                 .name(fileName)
                 .url(urlPrefix + fileName)

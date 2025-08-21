@@ -79,7 +79,8 @@ public class AuthServiceImpl implements AuthService {
 
     if (accessToken != null) {
       invalidTokenRepository.saveInvalidToken(accessToken,
-          Math.max(Objects.requireNonNull(jwt.getExpiresAt()).toEpochMilli() - Instant.now().toEpochMilli(), 100));
+          Math.max(Objects.requireNonNull(jwt.getExpiresAt()).toEpochMilli() - Instant.now()
+              .toEpochMilli(), 100));
     } else {
       throw new AppException(ErrorCode.LOGOUT_FAIL);
     }
@@ -110,7 +111,7 @@ public class AuthServiceImpl implements AuthService {
   @Override
   public boolean introspectAccessToken(String accessToken) {
 
-    if(invalidTokenRepository.isInvalidToken(accessToken)) {
+    if (invalidTokenRepository.isInvalidToken(accessToken)) {
       log.warn("Invalid access token: {}", accessToken);
       return false;
     }
@@ -137,7 +138,6 @@ public class AuthServiceImpl implements AuthService {
     log.warn(SecurityContextHolder.getContext().getAuthentication().toString());
     return (Jwt) SecurityContextHolder.getContext().getAuthentication().getCredentials();
   }
-
 
 
   public String generateToken(User user, boolean isRefreshToken) {

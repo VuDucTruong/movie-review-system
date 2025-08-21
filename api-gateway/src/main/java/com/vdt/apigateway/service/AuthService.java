@@ -4,7 +4,9 @@ import com.vdt.apigateway.repository.AuthClient;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Mono;
 
 @Service
 @RequiredArgsConstructor
@@ -13,8 +15,8 @@ public class AuthService {
   AuthClient authClient;
 
 
-  public Boolean introspectAccessToken(String accessToken) {
-    return authClient.introspect(accessToken).getBody();
+  public Mono<ResponseEntity<Boolean>> introspectAccessToken(String accessToken) {
+    return authClient.introspect(accessToken);
   }
 
 }

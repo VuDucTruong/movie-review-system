@@ -8,12 +8,14 @@ import com.vdt.profileservice.exception.AppException;
 import com.vdt.profileservice.exception.ErrorCode;
 import com.vdt.profileservice.mapper.ProfileMapper;
 import com.vdt.profileservice.repository.ProfileRepository;
+import com.vdt.profileservice.repository.client.FileClient;
 import com.vdt.profileservice.service.ProfileService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 @Slf4j
 @Service
@@ -21,11 +23,15 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class ProfileServiceImpl implements ProfileService {
     ProfileRepository profileRepository;
+    FileClient fileClient;
     ProfileMapper profileMapper;
 
     @Override
     public ProfileResponse createUserProfile(CreateProfileRequest request) {
         Profile profile = profileMapper.fromCreateRequest(request);
+        var url = fileClient.uploadFile(request.avatar()).getData().url();
+
+        profile.setAvatarUrl(url);
 
         return profileMapper.toProfileResponse(profileRepository.save(profile));
 
@@ -37,7 +43,10 @@ public class ProfileServiceImpl implements ProfileService {
                 ErrorCode.USER_NOT_FOUND));
         profileMapper.updateProfileFromRequest(request, profile);
 
-        log.warn(profile.toString());
+        if(request.avatar() != null) {
+            var url = fileClient.uploadFile(request.avatar()).getData().url();
+            profile.setAvatarUrl(url);
+        }
         return profileMapper.toProfileResponse(profileRepository.save(profile));
     }
 

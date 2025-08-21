@@ -8,7 +8,6 @@ public record ProfileResponse(
         LocalDateTime createdAt,
         LocalDateTime modifiedAt,
         String bio,
-        String avatarUrl,
-        Map<String , Object> preferences
+        String avatarUrl
 ) {
 }
