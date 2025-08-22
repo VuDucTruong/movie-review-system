@@ -29,7 +29,7 @@ public class GlobalExceptionHandler {
     ResponseEntity<ApiResponse<Object>> handleAppException(AppException ex) {
         var apiResponse = ApiResponse.builder()
                 .code(ex.getErrorCode().getCode())
-                .message(ex.getErrorCode().getMessage())
+                .message(ex.getErrorCode().getMessage() + (ex.getDetail() != null ? " : " + ex.getDetail() : ""))
                 .build();
 
         return new ResponseEntity<>(apiResponse, ex.getErrorCode().getHttpStatusCode());

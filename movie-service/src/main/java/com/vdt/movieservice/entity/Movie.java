@@ -35,7 +35,7 @@ public class Movie {
 
   String trailerUrl;
 
-  Integer releaseYear;
+  LocalDateTime releaseDate;
 
   String director;
 
