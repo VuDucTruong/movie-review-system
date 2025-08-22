@@ -14,6 +14,8 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -52,6 +54,15 @@ public class ProfileServiceImpl implements ProfileService {
 
     @Override
     public ProfileResponse getUserProfile(Long userId) {
+        Profile profile = profileRepository.findById(userId).orElseThrow(() -> new AppException(
+                ErrorCode.USER_NOT_FOUND));
+        return profileMapper.toProfileResponse(profile);
+    }
+
+    @Override
+    public ProfileResponse getMe() {
+        Jwt jwt = (Jwt) SecurityContextHolder.getContext().getAuthentication().getCredentials();
+        Long userId = Long.parseLong(jwt.getSubject());
         Profile profile = profileRepository.findById(userId).orElseThrow(() -> new AppException(
                 ErrorCode.USER_NOT_FOUND));
         return profileMapper.toProfileResponse(profile);

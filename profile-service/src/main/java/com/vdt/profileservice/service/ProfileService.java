@@ -8,4 +8,5 @@ public interface ProfileService {
     ProfileResponse createUserProfile(CreateProfileRequest request);
     ProfileResponse updateUserProfile(UpdateProfileRequest request);
     ProfileResponse getUserProfile(Long userId);
+    ProfileResponse getMe();
 }

@@ -10,7 +10,6 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -22,6 +21,13 @@ public class ProfileController {
     ApiResponse<ProfileResponse> getProfileByUserId(@PathVariable Long userId) {
         return ApiResponse.<ProfileResponse>builder()
                 .data(profileService.getUserProfile(userId))
+                .build();
+    }
+
+    @GetMapping("/me")
+    ApiResponse<ProfileResponse> getMe() {
+        return ApiResponse.<ProfileResponse>builder()
+                .data(profileService.getMe())
                 .build();
     }
 
