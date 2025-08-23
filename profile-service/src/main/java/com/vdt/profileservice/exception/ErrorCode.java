@@ -24,6 +24,7 @@ public enum ErrorCode {
 
     // 404
     USER_NOT_FOUND(4041, "User not found", HttpStatus.NOT_FOUND),
+    PROFILE_NOT_FOUND(4042, "Profile not found", HttpStatus.NOT_FOUND),
 
     // 500
     UNKNOWN_ERROR(5002, "Unknown error" , HttpStatus.INTERNAL_SERVER_ERROR),

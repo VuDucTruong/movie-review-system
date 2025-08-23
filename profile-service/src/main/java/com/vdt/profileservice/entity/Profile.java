@@ -1,15 +1,14 @@
 package com.vdt.profileservice.entity;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
+import java.time.LocalDateTime;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
-import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.type.SqlTypes;
-
-import java.time.LocalDateTime;
-import java.util.Map;
-import java.util.Set;
 
 
 @Entity
@@ -18,26 +17,23 @@ import java.util.Set;
 @ToString
 public class Profile {
 
-    @Id
-    @Column(name = "user_id")
-    Long userId;
-    LocalDateTime createdAt;
-    LocalDateTime modifiedAt;
+  @Id
+  @Column(name = "user_id")
+  Long userId;
+  LocalDateTime createdAt;
+  LocalDateTime modifiedAt;
 
-    @PrePersist
-    public void prePersist() {
-        createdAt = LocalDateTime.now();
-    }
+  @PrePersist
+  public void prePersist() {
+    createdAt = LocalDateTime.now();
+  }
 
-    @PreUpdate
-    public void preUpdate() {
-        modifiedAt = LocalDateTime.now();
-    }
+  @PreUpdate
+  public void preUpdate() {
+    modifiedAt = LocalDateTime.now();
+  }
 
-    String displayName;
-    String bio;
-    String avatarUrl;
-
-    @OneToMany(mappedBy = "profile", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    Set<WatchList> watchLists;
+  String displayName;
+  String bio;
+  String avatarUrl;
 }

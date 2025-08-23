@@ -38,6 +38,12 @@ spring:
                 - Path=/movies/**
               filters:
                 - RewritePath=/movies/(?<segment>.*), /${segment}
+            - id: review-service
+              uri: lb://review-service
+              predicates:
+                - Path=/reviews/**
+              filters:
+                - RewritePath=/reviews/(?<segment>.*), /${segment}
 
 server:
   port: 8080
@@ -67,3 +73,5 @@ springdoc:
         url: /files/v3/api-docs
       - name: Movie Service
         url: /movies/v3/api-docs
+      - name: Review Service
+        url: /reviews/v3/api-docs

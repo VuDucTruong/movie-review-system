@@ -1,0 +1,97 @@
+package com.vdt.reviewservice.service.impl;
+
+import com.vdt.reviewservice.dto.request.CreateReviewRequest;
+import com.vdt.reviewservice.dto.request.UpdateReviewRequest;
+import com.vdt.reviewservice.dto.response.ReviewResponse;
+import com.vdt.reviewservice.entity.ReviewLike;
+import com.vdt.reviewservice.entity.ReviewLikeId;
+import com.vdt.reviewservice.exception.AppException;
+import com.vdt.reviewservice.exception.ErrorCode;
+import com.vdt.reviewservice.mapper.ReviewMapper;
+import com.vdt.reviewservice.repository.ReviewLikeRepository;
+import com.vdt.reviewservice.repository.ReviewRepository;
+import com.vdt.reviewservice.repository.client.ProfileClient;
+import com.vdt.reviewservice.service.ReviewService;
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.stereotype.Service;
+
+@Service
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
+@RequiredArgsConstructor
+public class ReviewServiceImpl implements ReviewService {
+  ReviewRepository reviewRepository;
+  ReviewLikeRepository reviewLikeRepository;
+  ReviewMapper reviewMapper;
+  ProfileClient profileClient;
+
+  @Override
+  public ReviewResponse createReview(CreateReviewRequest createReviewRequest) {
+    var review = reviewMapper.toReviewFromCreateRequest(createReviewRequest);
+
+    review.setUserId(getUserIdFromJwt());
+
+    var savedReview = reviewRepository.save(review);
+    return reviewMapper.toReviewResponse(savedReview);
+  }
+
+  @Override
+  public ReviewResponse updateReview(Long id, UpdateReviewRequest updateReviewRequest) {
+
+    var review = reviewRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.REVIEW_NOT_FOUND));
+
+    if(!getUserIdFromJwt().equals(review.getUserId())) {
+      throw new AppException(ErrorCode.UNAUTHORIZED);
+    }
+
+    reviewMapper.updateReview(updateReviewRequest, review);
+
+    return reviewMapper.toReviewResponse(reviewRepository.save(review));
+  }
+
+  @Override
+  public Page<ReviewResponse> getReviewPageByMovieId(Long movieId, Pageable pageable) {
+    return reviewRepository.findByMovieId(movieId, pageable)
+        .map(reviewMapper::toReviewResponse);
+  }
+
+  @Override
+  public boolean approveReview(Long id) {
+    var review = reviewRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.REVIEW_NOT_FOUND));
+    review.setApproved(!review.isApproved());
+    var savedReview = reviewRepository.save(review);
+
+    return savedReview.isApproved();
+  }
+
+  @Override
+  public void deleteReview(Long id) {
+    reviewRepository.deleteById(id);
+  }
+
+  @Override
+  public boolean likeReview(Long id) {
+
+    var reviewLikeId = new ReviewLikeId(id , getUserIdFromJwt());
+
+    var reviewLike = reviewLikeRepository.findById(reviewLikeId).orElse(null);
+
+    if(reviewLike != null) {
+      reviewLikeRepository.delete(reviewLike);
+      return false;
+    }
+
+    reviewLikeRepository.save(new ReviewLike(reviewLikeId));
+
+    return true;
+  }
+
+  private Long getUserIdFromJwt() {
+    Jwt jwt = (Jwt) org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication().getCredentials();
+    return Long.parseLong(jwt.getSubject());
+  }
+}
