@@ -7,6 +7,7 @@ public record ProfileResponse(
         LocalDateTime createdAt,
         LocalDateTime modifiedAt,
         String bio,
-        String avatarUrl
+        String avatarUrl,
+        String email
 ) {
 }

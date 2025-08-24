@@ -22,6 +22,7 @@ public class Profile {
   Long userId;
   LocalDateTime createdAt;
   LocalDateTime modifiedAt;
+  String email;
 
   @PrePersist
   public void prePersist() {

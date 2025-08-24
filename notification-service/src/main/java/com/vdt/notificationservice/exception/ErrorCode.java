@@ -15,6 +15,7 @@ public enum ErrorCode {
   UNAUTHENTICATED(4010, "Unauthenticated", HttpStatus.UNAUTHORIZED),
 
   INTERNAL_SERVER_ERROR(5000, "Internal server error", HttpStatusCode.valueOf(500)),
+  SEND_EMAIL_FAIL(5001, "Send email fail", HttpStatusCode.valueOf(500))
 
   ;
   int code;

@@ -11,13 +11,12 @@ import org.mapstruct.MappingTarget;
 
 @Mapper(componentModel = "spring")
 public interface ProfileMapper {
-    @Mapping(target = "watchLists", ignore = true)
     @Mapping(target = "modifiedAt", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "avatarUrl", ignore = true)
     Profile fromCreateRequest(CreateProfileRequest request);
 
-    @Mapping(target = "watchLists", ignore = true)
+    @Mapping(target = "email", ignore = true)
     @Mapping(target = "userId", ignore = true)
     @Mapping(target = "modifiedAt", ignore = true)
     @Mapping(target = "createdAt", ignore = true)

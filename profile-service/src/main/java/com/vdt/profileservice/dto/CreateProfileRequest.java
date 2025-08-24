@@ -1,5 +1,6 @@
 package com.vdt.profileservice.dto;
 
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -13,6 +14,8 @@ public record CreateProfileRequest(
         String displayName,
         @Size(max = 200, message = "INVALID_BIO")
         String bio,
-        MultipartFile avatar
+        MultipartFile avatar,
+        @Email(message = "INVALID_EMAIL")
+        String email
 ) {
 }

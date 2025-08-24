@@ -15,6 +15,7 @@ import com.vdt.authservice.dto.request.LoginRequest;
 import com.vdt.authservice.dto.request.RegisterRequest;
 import com.vdt.authservice.dto.response.UserResponse;
 import com.vdt.authservice.entity.User;
+import com.vdt.authservice.event.NotificationEvent;
 import com.vdt.authservice.exception.AppException;
 import com.vdt.authservice.exception.ErrorCode;
 import com.vdt.authservice.mapper.UserMapper;
@@ -33,6 +34,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtException;
 import org.springframework.stereotype.Service;
+import org.springframework.kafka.core.KafkaTemplate;
 
 @Slf4j
 @Service
@@ -45,6 +47,7 @@ public class AuthServiceImpl implements AuthService {
   UserMapper userMapper;
   PasswordEncoder passwordEncoder;
   JwtProperties jwtProperties;
+  KafkaTemplate<String, Object> kafkaTemplate;
 
 
   @Override
@@ -68,7 +71,15 @@ public class AuthServiceImpl implements AuthService {
     var user = userMapper.fromRegisterRequest(registerRequest);
     user.setPassword(passwordEncoder.encode(user.getPassword()));
 
-    return userMapper.toUserResponse(userRepository.save(user), null);
+    var response =  userMapper.toUserResponse(userRepository.save(user), null);
+
+    var notificationEvent = NotificationEvent.builder().channel("EMAIL").recipient(user.getEmail())
+        .subject("Sign up successful")
+        .body("<h1>Welcome to Movie Review</h1><p>Thank you for signing up!</p>").build();
+    kafkaTemplate.send("sign-up-success", notificationEvent);
+
+
+    return response;
   }
 
   @Override

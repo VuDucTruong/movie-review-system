@@ -5,6 +5,7 @@ import com.vdt.reviewservice.dto.request.UpdateReviewRequest;
 import com.vdt.reviewservice.dto.response.ReviewResponse;
 import com.vdt.reviewservice.entity.ReviewLike;
 import com.vdt.reviewservice.entity.ReviewLikeId;
+import com.vdt.reviewservice.event.NotificationEvent;
 import com.vdt.reviewservice.exception.AppException;
 import com.vdt.reviewservice.exception.ErrorCode;
 import com.vdt.reviewservice.mapper.ReviewMapper;
@@ -17,6 +18,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 
@@ -28,6 +30,8 @@ public class ReviewServiceImpl implements ReviewService {
   ReviewLikeRepository reviewLikeRepository;
   ReviewMapper reviewMapper;
   ProfileClient profileClient;
+  KafkaTemplate<String, Object> kafkaTemplate;
+
 
   @Override
   public ReviewResponse createReview(CreateReviewRequest createReviewRequest) {
@@ -63,7 +67,22 @@ public class ReviewServiceImpl implements ReviewService {
   public boolean approveReview(Long id) {
     var review = reviewRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.REVIEW_NOT_FOUND));
     review.setApproved(!review.isApproved());
+    var userProfile = profileClient.getProfileByUserId(review.getUserId());
     var savedReview = reviewRepository.save(review);
+
+    var notificationEvent = NotificationEvent.builder()
+        .channel("EMAIL")
+        .recipient(userProfile.getData().email())
+        .subject("Your review has been " + (savedReview.isApproved() ? "approved" : "denied"))
+        .body("Hello " + userProfile.getData().displayName() + ",<br>" +
+            "Your review for the movie with ID " + review.getMovieId() + " has been " +
+            (savedReview.isApproved() ? "approved" : "denied") + ".<br>" +
+            "Thank you for your contribution!<br>" +
+            "Best regards,<br>" +
+            "Movie Review Team")
+        .build();
+
+    kafkaTemplate.send("review-approved", notificationEvent);
 
     return savedReview.isApproved();
   }

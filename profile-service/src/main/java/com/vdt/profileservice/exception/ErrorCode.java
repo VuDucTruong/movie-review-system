@@ -19,6 +19,7 @@ public enum ErrorCode {
     DISPLAY_NAME_CANNOT_BE_EMPTY(4003, "Display name cannot be empty", HttpStatus.BAD_REQUEST),
     INVALID_BIO(4004, "Bio should have 200 characters at most", HttpStatus.BAD_REQUEST),
     FILE_NOT_NULL(4005, "File cannot be null", HttpStatus.BAD_REQUEST),
+    INVALID_EMAIL(4006, "Invalid email format", HttpStatus.BAD_REQUEST),
     // 401
     UNAUTHENTICATED(4011, "Unauthenticated", HttpStatus.UNAUTHORIZED),
 

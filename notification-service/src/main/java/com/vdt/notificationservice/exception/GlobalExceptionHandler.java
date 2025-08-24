@@ -12,7 +12,7 @@ public class GlobalExceptionHandler {
 
   @ExceptionHandler(Exception.class)
   ResponseEntity<ApiResponse<Object>> handleException(Exception ex) {
-    log.error(ex.getMessage());
+    log.error(ex.getMessage(), ex);
     ErrorCode errorCode = ErrorCode.INTERNAL_SERVER_ERROR;
 
     var response = ApiResponse.builder()
@@ -25,11 +25,12 @@ public class GlobalExceptionHandler {
 
   @ExceptionHandler(AppException.class)
   ResponseEntity<Object> handleAppException(AppException ex) {
-    log.error(ex.getMessage());
+
+    log.error(ex.getErrorCode().getMessage(), ex);
 
     var response = ApiResponse.builder()
         .code(ex.getErrorCode().getCode())
-        .message(ex.getMessage() + (ex.getDetail() != null ? ": " + ex.getDetail() : ""))
+        .message(ex.getErrorCode().getMessage() + (ex.getDetail() != null ? ": " + ex.getDetail() : ""))
         .build();
 
     return new ResponseEntity<>(response, ex.getErrorCode().getHttpStatusCode());
