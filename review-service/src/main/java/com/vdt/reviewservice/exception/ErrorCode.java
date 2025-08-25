@@ -22,6 +22,9 @@ public enum ErrorCode {
   UNAUTHENTICATED(4010, "Unauthenticated", HttpStatus.UNAUTHORIZED),
   UNAUTHORIZED(4011, "Unauthorized", HttpStatus.UNAUTHORIZED),
 
+  // 403
+  INVALID_PERMISSION(4031, "You don't have permissions to do this", HttpStatus.FORBIDDEN),
+
   // 404
   REVIEW_NOT_FOUND(4041, "Review not found", HttpStatus.NOT_FOUND),
 

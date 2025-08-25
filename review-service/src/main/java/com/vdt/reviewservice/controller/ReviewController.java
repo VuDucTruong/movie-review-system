@@ -11,6 +11,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -37,6 +38,7 @@ public class ReviewController {
   }
 
   @PostMapping
+  @PreAuthorize("hasAnyRole('USER_CREATE', 'ADMIN_CREATE')")
   ApiResponse<ReviewResponse> createReview(@RequestBody @Valid CreateReviewRequest createReviewRequest) {
     return ApiResponse.<ReviewResponse>builder()
         .data(reviewService.createReview(createReviewRequest))
@@ -44,6 +46,7 @@ public class ReviewController {
   }
 
   @PutMapping("/{id}")
+  @PreAuthorize("hasAnyRole('USER_UPDATE')")
   ApiResponse<ReviewResponse> updateReview(@PathVariable Long id,
       @RequestBody @Valid UpdateReviewRequest updateReviewRequest) {
     return ApiResponse.<ReviewResponse>builder()
@@ -52,6 +55,7 @@ public class ReviewController {
   }
 
   @PutMapping("/{id}/approve")
+  @PreAuthorize("hasAnyRole('ADMIN_UPDATE')")
   ApiResponse<Boolean> approveReview(@PathVariable Long id) {
 
     boolean isApproved = reviewService.approveReview(id);
@@ -69,6 +73,7 @@ public class ReviewController {
   }
 
   @DeleteMapping("/{id}")
+  @PreAuthorize("hasAnyRole('USER_DELETE', 'ADMIN_DELETE')")
   ApiResponse<Void> deleteReview(@PathVariable Long id) {
     reviewService.deleteReview(id);
     return ApiResponse.<Void>builder().message("Delete successfully").build();

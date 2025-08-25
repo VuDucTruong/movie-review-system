@@ -15,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -44,16 +45,19 @@ public class MovieController {
   }
 
   @PostMapping(consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+  @PreAuthorize("hasRole('ADMIN_CREATE')")
   ApiResponse<MovieResponse> createMovie(@ModelAttribute CreateMovieRequest request){
     return ApiResponse.<MovieResponse>builder().data(movieService.createMovie(request)).build();
   }
 
   @PatchMapping(value = "/{id}",consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+  @PreAuthorize("hasRole('ADMIN_UPDATE')")
   ApiResponse<MovieResponse> updateMovie(@PathVariable Long id,@ModelAttribute UpdateMovieRequest request){
     return ApiResponse.<MovieResponse>builder().data(movieService.updateMovie(id,request)).build();
   }
 
   @DeleteMapping("/{id}")
+  @PreAuthorize("hasRole('ADMIN_DELETE')")
   ApiResponse<MovieResponse> deleteMovie(@PathVariable Long id) {
     movieService.deleteMovieById(id);
     return ApiResponse.<MovieResponse>builder().message("Delete successfully").build();

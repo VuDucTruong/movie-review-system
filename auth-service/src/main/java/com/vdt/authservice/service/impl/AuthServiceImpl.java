@@ -225,6 +225,7 @@ public class AuthServiceImpl implements AuthService {
 
   @Override
   public void checkCredentials() {
+    log.warn(SecurityContextHolder.getContext().getAuthentication().getName());
     log.warn(SecurityContextHolder.getContext().getAuthentication().toString());
   }
 

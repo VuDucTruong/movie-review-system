@@ -23,6 +23,9 @@ public enum ErrorCode {
     // 401
     UNAUTHENTICATED(4011, "Unauthenticated", HttpStatus.UNAUTHORIZED),
 
+    // 403
+    INVALID_PERMISSION(4031, "You don't have permissions to do this", HttpStatus.FORBIDDEN),
+
     // 404
     GENRE_NOT_FOUND(4041, "Genre not found", HttpStatus.NOT_FOUND),
     MOVIE_NOT_FOUND(4042, "Movie not found", HttpStatus.NOT_FOUND),

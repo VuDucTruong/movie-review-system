@@ -8,6 +8,7 @@ import com.vdt.movieservice.service.GenreService;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -38,12 +39,14 @@ public class GenreController {
   }
 
   @PostMapping
+  @PreAuthorize("hasRole('ADMIN_CREATE')")
   ApiResponse<GenreResponse> createGenre(@RequestBody GenreRequest genreRequest) {
     return ApiResponse.<GenreResponse>builder().data(genreService.createGenre(genreRequest))
         .build();
   }
 
   @PatchMapping("/{id}")
+  @PreAuthorize("hasRole('ADMIN_UPDATE')")
   ApiResponse<GenreResponse> updateGenre(@PathVariable Long id,
       @RequestBody GenreRequest genreRequest) {
     return ApiResponse.<GenreResponse>builder().data(genreService.updateGenre(id, genreRequest))
@@ -51,6 +54,7 @@ public class GenreController {
   }
 
   @DeleteMapping("/{id}")
+  @PreAuthorize("hasRole('ADMIN_DELETE')")
   ApiResponse<Void> deleteGenre(@PathVariable Long id) {
     genreService.deleteGenre(id);
     return ApiResponse.<Void>builder().message("Delete genre successfully").build();

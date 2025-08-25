@@ -9,6 +9,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -27,6 +28,7 @@ public class RoleController {
   RoleService roleService;
 
   @GetMapping
+  @PreAuthorize("hasRole('ADMIN_READ')")
   ApiResponse<PageResponse<RoleResponse>> getAllRoles(Pageable pageable) {
     return ApiResponse.<PageResponse<RoleResponse>>builder()
         .data(PageResponse.fromPage(roleService.getAllRoles(pageable)))
@@ -34,6 +36,7 @@ public class RoleController {
   }
 
   @GetMapping("/{roleId}")
+  @PreAuthorize("hasRole('ADMIN_READ')")
   ApiResponse<RoleResponse> getRoleById(@PathVariable Long roleId) {
     return ApiResponse.<RoleResponse>builder()
         .data(roleService.getRoleById(roleId))
@@ -42,11 +45,13 @@ public class RoleController {
 
 
   @PostMapping
+  @PreAuthorize("hasRole('ADMIN_CREATE')")
   ApiResponse<RoleResponse> createRole(@RequestBody RoleRequest roleRequest) {
     return ApiResponse.<RoleResponse>builder().data(roleService.createRole(roleRequest)).build();
   }
 
   @PatchMapping("/{roleId}")
+  @PreAuthorize("hasRole('ADMIN_UPDATE')")
   ApiResponse<RoleResponse> updateRole(@PathVariable Long roleId,
       @RequestBody RoleRequest roleRequest) {
     return ApiResponse.<RoleResponse>builder()
@@ -55,6 +60,7 @@ public class RoleController {
   }
 
   @DeleteMapping("/{roleId}")
+  @PreAuthorize("hasRole('ADMIN_DELETE')")
   ApiResponse<Void> deleteRole(@PathVariable Long roleId) {
     roleService.deleteRole(roleId);
     return ApiResponse.<Void>builder().message("Role deleted successfully").build();
