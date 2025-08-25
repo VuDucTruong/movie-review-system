@@ -21,6 +21,8 @@ public enum ErrorCode {
     EXPIRED_REFRESH_TOKEN(4005, "Refresh token was expired", HttpStatus.BAD_REQUEST),
     LOGOUT_FAIL(4006, "Logout fail as no access token exists", HttpStatus.BAD_REQUEST),
     INVALID_JWT_TOKEN(4007, "Invalid JWT token", HttpStatus.BAD_REQUEST),
+    EMAIL_ALREADY_EXISTS(4008, "Email already exists", HttpStatus.BAD_REQUEST),
+    INVALID_OTP(4009, "Invalid OTP", HttpStatus.BAD_REQUEST),
     // 401
     UNAUTHENTICATED(4011, "Unauthenticated", HttpStatus.UNAUTHORIZED),
 

@@ -3,8 +3,12 @@ package com.vdt.authservice.controller;
 
 import com.vdt.authservice.dto.ApiResponse;
 import com.vdt.authservice.dto.Token;
+import com.vdt.authservice.dto.request.AssignRoleRequest;
+import com.vdt.authservice.dto.request.ChangePasswordRequest;
+import com.vdt.authservice.dto.request.CreateUserRequest;
 import com.vdt.authservice.dto.request.LoginRequest;
 import com.vdt.authservice.dto.request.RegisterRequest;
+import com.vdt.authservice.dto.request.SendOtpRequest;
 import com.vdt.authservice.dto.response.UserResponse;
 import com.vdt.authservice.service.AuthService;
 import jakarta.validation.Valid;
@@ -14,6 +18,7 @@ import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -44,6 +49,14 @@ public class AuthController {
         .build();
   }
 
+  @PostMapping(value = "/register")
+  ApiResponse<UserResponse> register(@RequestBody @Valid CreateUserRequest createUserRequest) {
+    return ApiResponse.<UserResponse>builder()
+        .data(authService.createUser(createUserRequest))
+        .build();
+  }
+
+
   @PostMapping("/refresh")
   ApiResponse<Token> refreshToken(@RequestBody String refreshToken) {
     return ApiResponse.<Token>builder()
@@ -57,18 +70,27 @@ public class AuthController {
     return ResponseEntity.ok(authService.introspectAccessToken(accessToken));
   }
 
-  // TODO: Change password --> Need Notification service
+  @PutMapping("/assign-role")
+  ApiResponse<UserResponse> assignRoleToUser(@RequestBody AssignRoleRequest assignRoleRequest) {
+    return ApiResponse.<UserResponse>builder()
+        .data(authService.assignRoleToUser(assignRoleRequest))
+        .build();
+  }
 
-//    @PostMapping("/change-password/otp")
-//    ApiResponse<Void> sendOtp(@RequestBody @Valid SendOtpRequest sendOtpRequest) {
-//
-//    }
-//
-//    @PostMapping("/change-password/verify")
-//    ApiResponse<Void> changePassword(@RequestBody @Valid ChangePasswordRequest changePasswordRequest) {
-//        authService.changePassword(changePasswordRequest);
-//        return ApiResponse.<Void>builder().message("Change password successfully").build();
-//    }
+  @PostMapping("/change-password/otp")
+  ApiResponse<Void> sendOtp(@RequestBody @Valid SendOtpRequest sendOtpRequest) {
+    authService.sendOtp(sendOtpRequest.email());
+    return ApiResponse.<Void>builder()
+        .message("Send OTP successfully")
+        .build();
+  }
+
+  @PostMapping("/change-password/verify")
+  ApiResponse<Void> changePassword(
+      @RequestBody @Valid ChangePasswordRequest changePasswordRequest) {
+    authService.changePassword(changePasswordRequest);
+    return ApiResponse.<Void>builder().message("Change password successfully").build();
+  }
 
 
 }

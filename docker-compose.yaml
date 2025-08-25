@@ -1,20 +1,20 @@
 name: movie-review-system
 services:
-  postgres:
-    image: postgres:17.5
-    container_name: movie_review_postgres
-    env_file:
-      - ./environments/.env
-    ports:
-      - "5432:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
+#  postgres:
+#    image: postgres:17.5
+#    container_name: movie_review_postgres
+#    env_file:
+#      - ./environments/db.env
+#    ports:
+#      - "5432:5432"
+#    volumes:
+#      - postgres_data:/var/lib/postgresql/data
 
   redis:
     image: redis:8.2.0
     container_name: movie_review_redis
-    env_file:
-      - ./environments/.env
+    environment:
+      - REDIS_HOSTNAME=localhost
     ports:
       - "6379:6379"
     volumes:
@@ -35,5 +35,5 @@ services:
       - "9094:9094"
 
 volumes:
-  postgres_data:
+#  postgres_data:
   redis_data:

@@ -1,4 +1,4 @@
-package com.vdt.notificationservice.event;
+package com.vdt.event;
 
 import java.util.Map;
 import lombok.Builder;

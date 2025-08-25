@@ -1,9 +1,6 @@
 package com.vdt.authservice.config.security;
 
-import com.nimbusds.jose.JWSVerifier;
-import com.nimbusds.jose.crypto.MACVerifier;
 import com.nimbusds.jwt.SignedJWT;
-import java.util.Date;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
@@ -11,9 +8,10 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtException;
 import org.springframework.stereotype.Component;
+
 /*
-* Only extract token claims and return Jwt object.
-* */
+ * Only extract token claims and return Jwt object.
+ * */
 @Slf4j
 @Component
 @FieldDefaults(level = lombok.AccessLevel.PRIVATE, makeFinal = true)

@@ -5,7 +5,7 @@ import com.vdt.reviewservice.dto.request.UpdateReviewRequest;
 import com.vdt.reviewservice.dto.response.ReviewResponse;
 import com.vdt.reviewservice.entity.ReviewLike;
 import com.vdt.reviewservice.entity.ReviewLikeId;
-import com.vdt.reviewservice.event.NotificationEvent;
+import com.vdt.event.NotificationEvent;
 import com.vdt.reviewservice.exception.AppException;
 import com.vdt.reviewservice.exception.ErrorCode;
 import com.vdt.reviewservice.mapper.ReviewMapper;

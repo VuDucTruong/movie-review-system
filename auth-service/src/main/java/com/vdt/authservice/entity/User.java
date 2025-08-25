@@ -1,15 +1,12 @@
 package com.vdt.authservice.entity;
 
-
-import com.vdt.authservice.enums.Role;
 import jakarta.persistence.*;
+import java.time.LocalDateTime;
+import java.util.Set;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
-import java.util.HashSet;
-import java.util.Set;
 import org.springframework.util.StringUtils;
 
 @Entity
@@ -18,18 +15,38 @@ import org.springframework.util.StringUtils;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "users")
-public class User extends BaseEntity {
+public class User {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    Long id;
+
+    LocalDateTime createdAt;
+    LocalDateTime modifiedAt;
+
+    @PrePersist
+    public void prePersist() {
+        createdAt = LocalDateTime.now();
+    }
+
+    @PreUpdate
+    public void preUpdate() {
+        modifiedAt = LocalDateTime.now();
+    }
+
+
     @Column(unique = true, nullable = false)
     String email;
     String password;
 
-    @ElementCollection(fetch = FetchType.EAGER)
-    @CollectionTable(
+
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
             name = "user_roles",
-            joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id")
+            joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id"),
+            inverseJoinColumns = @JoinColumn(name = "role_id", referencedColumnName = "id")
     )
-    @Enumerated(EnumType.STRING)
-    Set<Role> roles = new HashSet<>();
+    Set<Role> roles;
 
     Boolean isActive = true;
 

@@ -10,21 +10,26 @@ import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 import com.vdt.authservice.dto.JwtProperties;
 import com.vdt.authservice.dto.Token;
+import com.vdt.authservice.dto.request.AssignRoleRequest;
 import com.vdt.authservice.dto.request.ChangePasswordRequest;
+import com.vdt.authservice.dto.request.CreateUserRequest;
 import com.vdt.authservice.dto.request.LoginRequest;
 import com.vdt.authservice.dto.request.RegisterRequest;
 import com.vdt.authservice.dto.response.UserResponse;
 import com.vdt.authservice.entity.User;
-import com.vdt.authservice.event.NotificationEvent;
+import com.vdt.authservice.repository.RoleRepository;
+import com.vdt.authservice.service.EmailTemplateService;
+import com.vdt.event.NotificationEvent;
 import com.vdt.authservice.exception.AppException;
 import com.vdt.authservice.exception.ErrorCode;
 import com.vdt.authservice.mapper.UserMapper;
-import com.vdt.authservice.repository.InvalidTokenRepository;
+import com.vdt.authservice.repository.CacheRepository;
 import com.vdt.authservice.repository.UserRepository;
 import com.vdt.authservice.service.AuthService;
 import java.time.Instant;
 import java.util.Date;
 import java.util.Objects;
+import java.util.Random;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -35,6 +40,7 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtException;
 import org.springframework.stereotype.Service;
 import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.util.StringUtils;
 
 @Slf4j
 @Service
@@ -43,12 +49,14 @@ import org.springframework.kafka.core.KafkaTemplate;
 public class AuthServiceImpl implements AuthService {
 
   UserRepository userRepository;
-  InvalidTokenRepository invalidTokenRepository;
+  CacheRepository cacheRepository;
+  RoleRepository roleRepository;
   UserMapper userMapper;
   PasswordEncoder passwordEncoder;
   JwtProperties jwtProperties;
   KafkaTemplate<String, Object> kafkaTemplate;
-
+  EmailTemplateService emailTemplateService;
+  Random rand = new Random();
 
   @Override
   public UserResponse login(LoginRequest loginRequest) {
@@ -68,6 +76,10 @@ public class AuthServiceImpl implements AuthService {
   @Override
   public UserResponse register(RegisterRequest registerRequest) {
 
+    if(userRepository.existsByEmail(registerRequest.email())) {
+      throw new AppException(ErrorCode.EMAIL_ALREADY_EXISTS);
+    }
+
     var user = userMapper.fromRegisterRequest(registerRequest);
     user.setPassword(passwordEncoder.encode(user.getPassword()));
 
@@ -75,11 +87,33 @@ public class AuthServiceImpl implements AuthService {
 
     var notificationEvent = NotificationEvent.builder().channel("EMAIL").recipient(user.getEmail())
         .subject("Sign up successful")
-        .body("<h1>Welcome to Movie Review</h1><p>Thank you for signing up!</p>").build();
+        .body(emailTemplateService.buildWelcomeEmail(user.getEmail())).build();
     kafkaTemplate.send("sign-up-success", notificationEvent);
 
 
     return response;
+  }
+
+  @Override
+  public UserResponse createUser(CreateUserRequest createUserRequest) {
+    if(userRepository.existsByEmail(createUserRequest.email())) {
+      throw new AppException(ErrorCode.EMAIL_ALREADY_EXISTS);
+    }
+
+    var user = userMapper.fromCreateUserRequest(createUserRequest);
+    user.setPassword(passwordEncoder.encode(user.getPassword()));
+
+    var roles = roleRepository.findByIdIn(createUserRequest.roleIds());
+
+    if(roles.size() != createUserRequest.roleIds().size()) {
+
+      var missingRoleIds = createUserRequest.roleIds().stream()
+          .filter(roleId -> roles.stream().noneMatch(role -> role.getId().equals(roleId)))
+          .toArray();
+
+      throw new AppException(ErrorCode.ROLE_NOT_FOUND, StringUtils.arrayToCommaDelimitedString(missingRoleIds));
+    }
+    return userMapper.toUserResponse(userRepository.save(user), null);
   }
 
   @Override
@@ -89,7 +123,7 @@ public class AuthServiceImpl implements AuthService {
     String accessToken = jwt.getTokenValue();
 
     if (accessToken != null) {
-      invalidTokenRepository.saveInvalidToken(accessToken,
+      cacheRepository.saveInvalidToken(accessToken,
           Math.max(Objects.requireNonNull(jwt.getExpiresAt()).toEpochMilli() - Instant.now()
               .toEpochMilli(), 100));
     } else {
@@ -114,6 +148,12 @@ public class AuthServiceImpl implements AuthService {
   public void changePassword(ChangePasswordRequest changePasswordRequest) {
     var user = userRepository.findUserByEmail(changePasswordRequest.email())
         .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+
+    String otp = cacheRepository.getOtp(user.getEmail());
+    if(!otp.equals(changePasswordRequest.otp())) {
+      throw new AppException(ErrorCode.INVALID_OTP);
+    }
+
     user.setPassword(passwordEncoder.encode(changePasswordRequest.newPassword()));
     userRepository.save(user);
     logout();
@@ -122,7 +162,7 @@ public class AuthServiceImpl implements AuthService {
   @Override
   public boolean introspectAccessToken(String accessToken) {
 
-    if (invalidTokenRepository.isInvalidToken(accessToken)) {
+    if (cacheRepository.isInvalidToken(accessToken)) {
       log.warn("Invalid access token: {}", accessToken);
       return false;
     }
@@ -144,6 +184,38 @@ public class AuthServiceImpl implements AuthService {
     }
   }
 
+  @Override
+  public UserResponse assignRoleToUser(AssignRoleRequest assignRoleRequest) {
+    var roles = roleRepository.findByIdIn(assignRoleRequest.roleIds());
+
+    if(roles.size() != assignRoleRequest.roleIds().size()) {
+
+      var missingRoleIds = assignRoleRequest.roleIds().stream()
+          .filter(roleId -> roles.stream().noneMatch(role -> role.getId().equals(roleId)))
+          .toArray();
+
+      throw new AppException(ErrorCode.ROLE_NOT_FOUND, StringUtils.arrayToCommaDelimitedString(missingRoleIds));
+    }
+
+    var user = userRepository.findById(assignRoleRequest.userId())
+        .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+
+    user.setRoles(roles);
+
+    return userMapper.toUserResponse(userRepository.save(user), null);
+  }
+
+  @Override
+  public void sendOtp(String email) {
+    int otp = 100000 + rand.nextInt(900000);
+    String otpString = String.valueOf(otp);
+    cacheRepository.saveOtp(email, otpString, 1);
+    var notificationEvent = NotificationEvent.builder().channel("EMAIL").recipient(email)
+        .subject("OTP for Change Password")
+        .body(emailTemplateService.buildOtpEmail(otpString)).build();
+    kafkaTemplate.send("send-otp", notificationEvent);
+  }
+
 
   private Jwt getJwt() {
     log.warn(SecurityContextHolder.getContext().getAuthentication().toString());
@@ -153,7 +225,6 @@ public class AuthServiceImpl implements AuthService {
 
   public String generateToken(User user, boolean isRefreshToken) {
     long expTime = jwtProperties.getExpiration() * (isRefreshToken ? 10 : 1);
-    //long expTime = isRefreshToken ? jwtProperties.getExpiration() * 10 : 1000;
     JWTClaimsSet claims = new JWTClaimsSet.Builder()
         .subject(user.getId().toString())
         .issuer("VDT")

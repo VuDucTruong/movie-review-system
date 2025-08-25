@@ -13,6 +13,8 @@ public record ChangePasswordRequest(
         @Pattern(regexp = "(?=.*[a-zA-Z])(?=.*[^a-zA-Z0-9\\s])[\\S]{6,40}", message = "INVALID_PASSWORD")
         String newPassword,
         @Pattern(regexp = "(?=.*[a-zA-Z])(?=.*[^a-zA-Z0-9\\s])[\\S]{6,40}", message = "INVALID_PASSWORD")
-        String confirmPassword
+        String confirmPassword,
+        @Pattern(regexp = "^\\d{6}$", message = "INVALID_OTP")
+        String otp
 ) {
 }

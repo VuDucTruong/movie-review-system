@@ -3,7 +3,7 @@ package com.vdt.notificationservice.controller;
 import com.vdt.notificationservice.dto.ApiResponse;
 import com.vdt.notificationservice.dto.BrevoEmailRequest.Recipient;
 import com.vdt.notificationservice.dto.SendEmailRequest;
-import com.vdt.notificationservice.event.NotificationEvent;
+import com.vdt.event.NotificationEvent;
 import com.vdt.notificationservice.service.EmailService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -30,12 +30,12 @@ public class NotificationController {
         .build();
   }
 
-  @KafkaListener(topics = {"review-approved" , "sign-up-success"})
+  @KafkaListener(topics = {"review-approved" , "sign-up-success", "send-otp"})
   void listenLikeYourReview(NotificationEvent event) {
     log.info("Received message: {}", event);
     emailService.sendEmail(
-        SendEmailRequest.builder().subject(event.subject()).htmlContent(event.body()).to(
-            Recipient.builder().email(event.recipient()).build()).build());
+        SendEmailRequest.builder().subject(event.getSubject()).htmlContent(event.getBody()).to(
+            Recipient.builder().email(event.getRecipient()).build()).build());
 
   }
 }
