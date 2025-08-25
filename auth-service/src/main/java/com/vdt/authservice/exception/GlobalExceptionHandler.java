@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationServiceException;
+import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.security.oauth2.jwt.JwtException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -73,6 +74,18 @@ public class GlobalExceptionHandler {
     ResponseEntity<ApiResponse<Object>> handleJwtException(JwtException ex) {
         log.error("JWT Exception: {}", ex.getMessage(), ex);
         ErrorCode errorCode = ErrorCode.INVALID_JWT_TOKEN;
+        ApiResponse<Object> apiResponse = ApiResponse.builder()
+            .code(errorCode.getCode())
+            .message(errorCode.getMessage())
+            .build();
+        return new ResponseEntity<>(apiResponse, errorCode.getHttpStatusCode());
+    }
+
+
+    @ExceptionHandler(AuthorizationDeniedException.class)
+    ResponseEntity<ApiResponse<Object>> handleAuthorizationDeniedException(AuthorizationDeniedException ex) {
+        log.error("Authorization Denied Exception: {}", ex.getMessage(), ex);
+        ErrorCode errorCode = ErrorCode.INVALID_PERMISSION;
         ApiResponse<Object> apiResponse = ApiResponse.builder()
             .code(errorCode.getCode())
             .message(errorCode.getMessage())

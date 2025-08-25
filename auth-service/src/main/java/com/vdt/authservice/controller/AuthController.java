@@ -17,6 +17,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -29,6 +31,12 @@ import org.springframework.web.bind.annotation.RestController;
 public class AuthController {
 
   AuthService authService;
+
+  @GetMapping("/test")
+  ApiResponse<Void> test() {
+    authService.checkCredentials();
+    return ApiResponse.<Void>builder().message("OK").build();
+  }
 
   @PostMapping("/me/logout")
   ApiResponse<Void> logout() {
@@ -49,8 +57,9 @@ public class AuthController {
         .build();
   }
 
-  @PostMapping(value = "/register")
-  ApiResponse<UserResponse> register(@RequestBody @Valid CreateUserRequest createUserRequest) {
+  @PostMapping(value = "/create")
+  @PreAuthorize("hasRole('ADMIN_CREATE')")
+  ApiResponse<UserResponse> createUser(@RequestBody @Valid CreateUserRequest createUserRequest) {
     return ApiResponse.<UserResponse>builder()
         .data(authService.createUser(createUserRequest))
         .build();
@@ -71,6 +80,7 @@ public class AuthController {
   }
 
   @PutMapping("/assign-role")
+  @PreAuthorize("hasRole('ADMIN_UPDATE')")
   ApiResponse<UserResponse> assignRoleToUser(@RequestBody AssignRoleRequest assignRoleRequest) {
     return ApiResponse.<UserResponse>builder()
         .data(authService.assignRoleToUser(assignRoleRequest))

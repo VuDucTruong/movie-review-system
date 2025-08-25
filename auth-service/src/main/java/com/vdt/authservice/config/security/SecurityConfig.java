@@ -40,6 +40,8 @@ public class SecurityConfig {
       "/register",
       "/refresh",
       "/introspect",
+      "/test",
+      "/change-password/**",
       "/swagger-ui/**",
       "/v3/api-docs/**",
       "/actuator/**"

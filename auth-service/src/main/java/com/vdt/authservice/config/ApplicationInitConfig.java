@@ -33,7 +33,7 @@ public class ApplicationInitConfig {
 
         var adminRole = roleRepository.save(
             Role.builder().name(PredefinedRole.ADMIN.name()).permissions(
-                    Set.of(Permission.CREATE, Permission.READ, Permission.UPDATE, Permission.DELETE))
+                    Set.of( Permission.READ, Permission.UPDATE, Permission.DELETE))
                 .build());
 
         User user = new User();

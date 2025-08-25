@@ -1,7 +1,9 @@
 package com.vdt.authservice.entity;
 
+import com.vdt.authservice.constant.Permission;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.Set;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -55,7 +57,17 @@ public class User {
         if (roles == null || roles.isEmpty()) {
             return "";
         }
-        return StringUtils.collectionToDelimitedString(roles, " ");
+
+        Set<String> roleValues = new HashSet<>();
+
+        for(Role role: roles){
+            for(Permission permission: role.getPermissions()){
+                var temp = role.getName() + "_" + permission.name();
+                roleValues.add(temp);
+            }
+        }
+
+        return StringUtils.collectionToDelimitedString(roleValues, " ");
     }
 
 

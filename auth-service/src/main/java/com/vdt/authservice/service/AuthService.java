@@ -18,4 +18,5 @@ public interface AuthService {
     boolean introspectAccessToken(String accessToken);
     UserResponse assignRoleToUser(AssignRoleRequest assignRoleRequest);
     void sendOtp(String email);
+    void checkCredentials();
 }

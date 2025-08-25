@@ -26,6 +26,9 @@ public enum ErrorCode {
     // 401
     UNAUTHENTICATED(4011, "Unauthenticated", HttpStatus.UNAUTHORIZED),
 
+    // 403
+    INVALID_PERMISSION(4031, "You don't have permissions to do this", HttpStatus.FORBIDDEN),
+
     // 404
     ROLE_NOT_FOUND(4041, "Role not found", HttpStatus.NOT_FOUND),
     USER_NOT_FOUND(4042, "User not found", HttpStatus.NOT_FOUND),

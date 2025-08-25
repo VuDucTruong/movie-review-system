@@ -51,6 +51,7 @@ public class AuthServiceImpl implements AuthService {
   UserRepository userRepository;
   CacheRepository cacheRepository;
   RoleRepository roleRepository;
+
   UserMapper userMapper;
   PasswordEncoder passwordEncoder;
   JwtProperties jwtProperties;
@@ -145,6 +146,22 @@ public class AuthServiceImpl implements AuthService {
   }
 
   @Override
+  public void sendOtp(String email) {
+
+    if(!userRepository.existsByEmail(email)) {
+      throw new AppException(ErrorCode.USER_NOT_FOUND);
+    }
+
+    int otp = 100000 + rand.nextInt(900000);
+    String otpString = String.valueOf(otp);
+    cacheRepository.saveOtp(email, otpString, 1);
+    var notificationEvent = NotificationEvent.builder().channel("EMAIL").recipient(email)
+        .subject("OTP for Change Password")
+        .body(emailTemplateService.buildOtpEmail(otpString)).build();
+    kafkaTemplate.send("send-otp", notificationEvent);
+  }
+
+  @Override
   public void changePassword(ChangePasswordRequest changePasswordRequest) {
     var user = userRepository.findUserByEmail(changePasswordRequest.email())
         .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
@@ -205,17 +222,11 @@ public class AuthServiceImpl implements AuthService {
     return userMapper.toUserResponse(userRepository.save(user), null);
   }
 
-  @Override
-  public void sendOtp(String email) {
-    int otp = 100000 + rand.nextInt(900000);
-    String otpString = String.valueOf(otp);
-    cacheRepository.saveOtp(email, otpString, 1);
-    var notificationEvent = NotificationEvent.builder().channel("EMAIL").recipient(email)
-        .subject("OTP for Change Password")
-        .body(emailTemplateService.buildOtpEmail(otpString)).build();
-    kafkaTemplate.send("send-otp", notificationEvent);
-  }
 
+  @Override
+  public void checkCredentials() {
+    log.warn(SecurityContextHolder.getContext().getAuthentication().toString());
+  }
 
   private Jwt getJwt() {
     log.warn(SecurityContextHolder.getContext().getAuthentication().toString());
@@ -223,7 +234,7 @@ public class AuthServiceImpl implements AuthService {
   }
 
 
-  public String generateToken(User user, boolean isRefreshToken) {
+  private String generateToken(User user, boolean isRefreshToken) {
     long expTime = jwtProperties.getExpiration() * (isRefreshToken ? 10 : 1);
     JWTClaimsSet claims = new JWTClaimsSet.Builder()
         .subject(user.getId().toString())
