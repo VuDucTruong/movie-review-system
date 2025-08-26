@@ -66,6 +66,10 @@ public class AuthServiceImpl implements AuthService {
             user.getPassword()))
         .orElseThrow(() -> new AppException(ErrorCode.LOGIN_FAIL));
 
+    if(Boolean.FALSE.equals(authenticatedUser.getIsActive())) {
+      throw new AppException(ErrorCode.ACCOUNT_DISABLED);
+    }
+
     var token = new Token(
         generateToken(authenticatedUser, false),
         generateToken(authenticatedUser, true)

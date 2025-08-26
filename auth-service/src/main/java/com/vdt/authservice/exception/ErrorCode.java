@@ -25,6 +25,7 @@ public enum ErrorCode {
     INVALID_OTP(4009, "Invalid OTP", HttpStatus.BAD_REQUEST),
     // 401
     UNAUTHENTICATED(4011, "Unauthenticated", HttpStatus.UNAUTHORIZED),
+    ACCOUNT_DISABLED(4012, "Your account is disabled", HttpStatus.UNAUTHORIZED),
 
     // 403
     INVALID_PERMISSION(4031, "You don't have permissions to do this", HttpStatus.FORBIDDEN),

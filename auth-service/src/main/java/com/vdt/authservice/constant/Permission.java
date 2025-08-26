@@ -1,8 +1,12 @@
 package com.vdt.authservice.constant;
 
 public enum Permission {
-  CREATE,
-  READ,
-  UPDATE,
-  DELETE,
+  USER_CREATE,
+  USER_READ,
+  USER_UPDATE,
+  USER_DELETE,
+  ADMIN_CREATE,
+  ADMIN_READ,
+  ADMIN_UPDATE,
+  ADMIN_DELETE,
 }

@@ -34,6 +34,8 @@ services:
     ports:
       - "9094:9094"
 
+
+
 volumes:
 #  postgres_data:
   redis_data:
