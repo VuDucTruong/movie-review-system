@@ -35,6 +35,8 @@ public class Review {
 
   String reviewText;
 
+  long totalLikes;
+
   boolean approved = false;
 
   LocalDateTime createdAt;

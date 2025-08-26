@@ -10,6 +10,7 @@ import com.vdt.movieservice.mapper.MovieMapper;
 import com.vdt.movieservice.repository.GenreRepository;
 import com.vdt.movieservice.repository.MovieRepository;
 import com.vdt.movieservice.repository.client.FileClient;
+import com.vdt.movieservice.repository.client.ReviewClient;
 import com.vdt.movieservice.service.MovieService;
 import java.util.HashSet;
 import java.util.Set;
@@ -31,6 +32,7 @@ public class MovieServiceImpl implements MovieService {
   MovieMapper movieMapper;
   FileClient fileClient;
   GenreRepository genreRepository;
+  ReviewClient reviewClient;
 
   @Override
   public Page<MovieResponse> getMoviePaginationByGenreIds(Pageable pageable, Set<Long> genreIds) {
@@ -81,7 +83,11 @@ public class MovieServiceImpl implements MovieService {
       movie.setGenres(genres);
     }
 
-    return movieMapper.toMovieResponse(movieRepository.save(movie));
+    var savedMovie = movieRepository.save(movie);
+
+    reviewClient.createReviewStatistic(savedMovie.getId());
+
+    return movieMapper.toMovieResponse(savedMovie);
 
   }
 
@@ -130,4 +136,5 @@ public class MovieServiceImpl implements MovieService {
   public void deleteMovieById(Long movieId) {
     movieRepository.deleteById(movieId);
   }
+
 }

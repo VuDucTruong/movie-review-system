@@ -24,12 +24,6 @@ public class SecurityConfig {
   CustomJwtDecoder customJwtDecoder;
 
 
-  String[] WHITELIST = {
-      "/swagger-ui/**",
-      "/v3/api-docs/**",
-      "/actuator/**"
-  };
-
   @Bean
   public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
@@ -37,7 +31,7 @@ public class SecurityConfig {
 
     http.authorizeHttpRequests(
         auth ->
-            auth.requestMatchers(WHITELIST).permitAll().anyRequest().authenticated());
+            auth.anyRequest().permitAll());
 
     http.oauth2ResourceServer(
         oauth2 -> oauth2.jwt(jwtConfigurer ->

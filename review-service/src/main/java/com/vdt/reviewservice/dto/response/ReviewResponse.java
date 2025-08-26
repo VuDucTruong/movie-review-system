@@ -8,6 +8,7 @@ public record ReviewResponse(
     Integer rating,
     String reviewText,
     boolean approved,
+    Long totalLikes,
     LocalDateTime createdAt,
     LocalDateTime modifiedAt
 ) {

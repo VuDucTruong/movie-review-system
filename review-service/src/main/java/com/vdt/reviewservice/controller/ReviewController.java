@@ -5,6 +5,7 @@ import com.vdt.reviewservice.dto.PageResponse;
 import com.vdt.reviewservice.dto.request.CreateReviewRequest;
 import com.vdt.reviewservice.dto.request.UpdateReviewRequest;
 import com.vdt.reviewservice.dto.response.ReviewResponse;
+import com.vdt.reviewservice.dto.response.ReviewStatisticResponse;
 import com.vdt.reviewservice.service.ReviewService;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
@@ -37,12 +38,26 @@ public class ReviewController {
         .build();
   }
 
+  @GetMapping("/statistics/{movieId}")
+  ApiResponse<ReviewStatisticResponse> getReviewStatisticByMovieId(@PathVariable Long movieId) {
+    return ApiResponse.<ReviewStatisticResponse>builder()
+        .data(reviewService.getReviewStatistic(movieId)).build();
+  }
+
   @PostMapping
   @PreAuthorize("hasAnyRole('USER_CREATE', 'ADMIN_CREATE')")
-  ApiResponse<ReviewResponse> createReview(@RequestBody @Valid CreateReviewRequest createReviewRequest) {
+  ApiResponse<ReviewResponse> createReview(
+      @RequestBody @Valid CreateReviewRequest createReviewRequest) {
     return ApiResponse.<ReviewResponse>builder()
         .data(reviewService.createReview(createReviewRequest))
         .build();
+  }
+
+  @PostMapping("/statistic/{movieId}")
+  ApiResponse<Void> createReviewStatistic(@PathVariable Long movieId) {
+    reviewService.createEmptyStatistic(movieId);
+
+    return ApiResponse.<Void>builder().message("Create empty statistic successfully").build();
   }
 
   @PutMapping("/{id}")
@@ -68,7 +83,8 @@ public class ReviewController {
   @PostMapping("/{id}/like")
   ApiResponse<Boolean> likeReview(@PathVariable Long id) {
     boolean isLike = reviewService.likeReview(id);
-    return ApiResponse.<Boolean>builder().message(isLike ? "Like successfully" : "Unlike successfully")
+    return ApiResponse.<Boolean>builder()
+        .message(isLike ? "Like successfully" : "Unlike successfully")
         .data(isLike).build();
   }
 
