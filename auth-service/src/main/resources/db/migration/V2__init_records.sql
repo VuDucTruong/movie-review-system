@@ -12,22 +12,22 @@ TRUNCATE TABLE
 -- ============================================
 -- Roles
 
-INSERT INTO public.role (id, name)
-VALUES (1, 'ADMIN'),
-       (2, 'USER');
+INSERT INTO public.role ( name)
+VALUES ( 'ADMIN'),
+       ( 'USER');
 
 
 -- Users
 -- admin -> admin@123
 -- all users --> user@123
-INSERT INTO public.users (id, is_active, created_at, modified_at, email, password)
-VALUES (1, TRUE, NOW(), null, 'admin@gmail.com',
+INSERT INTO public.users ( is_active, created_at, modified_at, email, password)
+VALUES ( TRUE, NOW(), null, 'admin@gmail.com',
         '$2a$10$ifpkKdMm/LISgybFvnAwUuIgBSp3BLNVQK9DV5qu1Llppo5ZWHQzC'),
-       (2, TRUE, NOW(), null, 'user1@gmail.com',
+       (TRUE, NOW(), null, 'user1@gmail.com',
         '$2a$10$hD9wZqIzD0lN6SPZ6OQK7eI9QCuWH7CBFcXKNgmrJ5YQHZ3UEu5lS'),
-       (3, TRUE, NOW(), null, 'user2@gmail.com',
+       ( TRUE, NOW(), null, 'user2@gmail.com',
         '$2a$10$hD9wZqIzD0lN6SPZ6OQK7eI9QCuWH7CBFcXKNgmrJ5YQHZ3UEu5lS'),
-       (4, FALSE, NOW(), null, 'user@disable.com',
+       ( FALSE, NOW(), null, 'user@disable.com',
         '$2a$10$hD9wZqIzD0lN6SPZ6OQK7eI9QCuWH7CBFcXKNgmrJ5YQHZ3UEu5lS');
 
 

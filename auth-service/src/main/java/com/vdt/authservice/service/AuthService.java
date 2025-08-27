@@ -7,6 +7,8 @@ import com.vdt.authservice.dto.request.CreateUserRequest;
 import com.vdt.authservice.dto.request.LoginRequest;
 import com.vdt.authservice.dto.request.RegisterRequest;
 import com.vdt.authservice.dto.response.UserResponse;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 public interface AuthService {
     UserResponse login(LoginRequest loginRequest);
@@ -19,4 +21,5 @@ public interface AuthService {
     UserResponse assignRoleToUser(AssignRoleRequest assignRoleRequest);
     void sendOtp(String email);
     void checkCredentials();
+    Page<UserResponse> getAllUsers(Pageable pageable);
 }

@@ -2,6 +2,7 @@ package com.vdt.apigateway.config;
 
 import com.vdt.apigateway.repository.AuthClient;
 import java.util.List;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.cors.CorsConfiguration;
@@ -13,6 +14,9 @@ import org.springframework.web.service.invoker.HttpServiceProxyFactory;
 
 @Configuration
 public class WebClientConfig {
+
+  @Value("${app.services.auth}")
+  String authServiceUrl;
 
   @Bean
   CorsWebFilter corsWebFilter(){
@@ -29,7 +33,7 @@ public class WebClientConfig {
 
   @Bean
   AuthClient authClient(){
-    WebClient webClient = WebClient.builder().baseUrl("http://localhost:8080/auth").build();
+    WebClient webClient = WebClient.builder().baseUrl(authServiceUrl).build(); // This is like the base url in feign client
     HttpServiceProxyFactory httpServiceProxyFactory = HttpServiceProxyFactory
         .builderFor(WebClientAdapter.create(webClient)).build();
 

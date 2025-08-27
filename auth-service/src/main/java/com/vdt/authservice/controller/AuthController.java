@@ -2,6 +2,7 @@ package com.vdt.authservice.controller;
 
 
 import com.vdt.authservice.dto.ApiResponse;
+import com.vdt.authservice.dto.PageResponse;
 import com.vdt.authservice.dto.Token;
 import com.vdt.authservice.dto.request.AssignRoleRequest;
 import com.vdt.authservice.dto.request.ChangePasswordRequest;
@@ -16,6 +17,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -36,6 +38,13 @@ public class AuthController {
   ApiResponse<Void> test() {
     authService.checkCredentials();
     return ApiResponse.<Void>builder().message("OK").build();
+  }
+
+  @GetMapping("/all")
+  ApiResponse<PageResponse<UserResponse>> getAllUsers(Pageable pageable) {
+    return ApiResponse.<PageResponse<UserResponse>>builder()
+        .data(PageResponse.fromPage(authService.getAllUsers(pageable)))
+        .build();
   }
 
   @PostMapping("/me/logout")

@@ -34,6 +34,8 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -231,6 +233,12 @@ public class AuthServiceImpl implements AuthService {
   public void checkCredentials() {
     log.warn(SecurityContextHolder.getContext().getAuthentication().getName());
     log.warn(SecurityContextHolder.getContext().getAuthentication().toString());
+  }
+
+  @Override
+  public Page<UserResponse> getAllUsers(Pageable pageable) {
+    return userRepository.findAll(pageable)
+        .map(user -> userMapper.toUserResponse(user, null));
   }
 
   private Jwt getJwt() {
