@@ -14,8 +14,6 @@ services:
   redis:
     image: redis:8.2.0
     container_name: redis_cache
-    environment:
-      - REDIS_HOSTNAME=redis_cache
     ports:
       - "6379:6379"
     volumes:
